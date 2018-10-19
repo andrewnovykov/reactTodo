@@ -11,7 +11,7 @@ import './app.css';
 export default class App extends Component {
                  maxId = 100;
 
-                 state = { todoData: [this.createTodoItem("Drink "), this.createTodoItem("Eat "), this.createTodoItem("Study ")], term: " " };
+                 state = { todoData: [this.createTodoItem("Drink "), this.createTodoItem("Eat "), this.createTodoItem("Study ")], term: " ", filter: 'all' };
 
                  createTodoItem(label) {
                    return { label, important: false, done: false, id: this.maxId++ };
@@ -73,14 +73,40 @@ export default class App extends Component {
                    });
                  };
 
+
+
+
+                 filter = (items, filter) => {
+                    switch (filter) {
+                      case "all":
+                        return items;
+
+                      case "active":
+                        return items.filter((item) => !item.done);
+
+                      case "done":
+                        return items.filter((item) => item.done);
+
+                      default:
+                        return items;
+                        
+                    }
+                 }
+
+
+
                  onSearchCange = term => {
                    this.setState({ term });
                  };
 
-                 render() {
-                   const { todoData, term } = this.state;
+                  onFilterCange = filter => {
+                    this.setState({ filter });
+                  };
 
-                   const visibleItems = this.serch(todoData, term);
+                 render() {
+                   const { todoData, term, filter } = this.state;
+
+                   const visibleItems = this.filter(this.serch(todoData, term), filter);
 
                    const doneCount = this.state.todoData.filter(el => el.done).length;
                    const todoCount = this.state.todoData.length - doneCount;
@@ -89,7 +115,8 @@ export default class App extends Component {
                        <AppHeader toDo={todoCount} done={doneCount} />
                        <div className="top-panel d-flex">
                        <SearchPanel onSearchCange={this.onSearchCange} /> 
-                         <ItemStatusFilter />
+                         <ItemStatusFilter filter={filter}
+                         onFilterCange={this.onFilterCange} />
                        </div>
 
                        <TodoList todos={visibleItems} onDeleted={this.deleteItem} onToggleDone={this.makeDone} onToggleImportant={this.makeImportant} />
